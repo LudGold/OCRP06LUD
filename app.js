@@ -1,53 +1,90 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const express = require('express');
+var cors = require('cors')
+const mongoose = require('mongoose');
+const app = express();
+
+
+app.use(cors())
+
+mongoose.connect(`mongodb+srv://${process.env.MONGODB_ID}:${process.env.MDP}@cluster0.xqjst5h.mongodb.net/?retryWrites=true&w=majority`,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log('Connexion à MongoDB réussie !'))
+  .catch(() => console.log('Connexion à MongoDB échouée !'));
+
+app.use(express.json());
+  
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  next();
+});
+ app.use('/api/auth/login', (req, res, next) => {
+  const login = [
+    {
+      email: { type: String, required: true, unique: true },
+      password: { type: String, required: true }
+    },];
+
+  res.status(200).json(login);
+}); 
+app.use(cors());
+ const userRoutes = require('./routes/user');
+/* const saucesRoutes = require('./routes/sauces'); */
+ app.use('/api/auth', userRoutes); 
+ /* app.use('/api/sauces', saucesRoutes); */
+ /* app.use('/images', express.static(path.join(_dirname, 'images')));  */
+
+module.exports = app;
+
+
+
+
+
+
+
+
+
+
+/* FICHIER DU 4 NOVEMBRE !! BON MAIS SERVER3000 NE MARCHE PAS
+require('dotenv').config();
+const express = require('express');
+var helmet = require('helmet');
+
 
 const mongoose = require('mongoose');
+const sauceRoute = require('./routes/sauces')
+const userRoute = require('./routes/user')
+const path = require('path');
 
-mongoose.connect('mongodb+srv://78LudGold:eAq8N3uLwrJ1T3ZJ@cluster0.xqjst5h.mongodb.net/?retryWrites=true&w=majority',
+app.use(helmet());
+mongoose.connect(`mongodb+srv://${process.env.MONGODB_ID}:${process.env.MDP}@cluster0.xqjst5h.mongodb.net/?retryWrites=true&w=majority`,
   { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
-  const app = express();
+const app = express();
 
+// permet d'analyser le corps de la requete Post
 app.use(express.json());
 
+// lors de requête GET, evite les erreurs CORS, cf sécurité
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    next();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  next();
 });
 
-
-//LE GET ET LE POST NE MARCHE PAS POUR LE MOMENT
-app.post('/api/login', (req, res, next) => {
-    console.log(req.body);
-    res.status(201).json({
-        message: 'objet crée!'
-    });
-
-    app.get('/api/login', (req, res, next) => {
-        const login = [
-            {
-                _id: 'oeihfzeoi',
-                title: 'Mon premier objet',
-                description: 'Les infos de mon premier objet',
-                imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
-                price: 4900,
-                userId: 'qsomihvqios',
-            },
-            {
-                _id: 'oeihfzeomoihi',
-                title: 'Mon deuxième objet',
-                description: 'Les infos de mon deuxième objet',
-                imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
-                price: 2900,
-                userId: 'qsomihvqios',
-            },
-        ];
-
-        res.status(200).json(login);
-        
-    });
-});
+app.use('/api/auth', userRoute);
+app.use('/api/sauces', sauceRoute);
+app.use('/images', express.static(path.join(_dirname, 'images')));
 module.exports = app;
+
+ */
