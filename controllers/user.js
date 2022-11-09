@@ -1,10 +1,10 @@
 const User = require('../models/user');
 const bcrypt = require("bcrypt");
-const user = require('../app');
+
 const jwt = require('jsonwebtoken');
 
 
-exports.signup = (req, res, next) => {
+exports.signUp = (req, res, next) => {
     //10 tours pour creer un mdp securisé, methode asynchrone
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
@@ -19,14 +19,14 @@ exports.signup = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-exports.login = (req, res, next) => {
+exports.logIn = (req, res, next) => {
     User.findOne({ email: req.body.email })
-        .then(user => {
-            if (!user) {
+        .then(findUser => {
+            if (!findUser) {
                 res.status(401).json({ message: 'Paire identifiant/mot de passe incorrect' });
             }
             else {
-                bcrypt.compare(req.body.password, user.password)
+                bcrypt.compare(req.body.password, findUser.password)
                     .then(valid => {
                         if (!valid) {
                             res.status(401).json({
@@ -34,10 +34,10 @@ exports.login = (req, res, next) => {
                             })
                         } else {
                             res.status(200).json({
-                                userId: user._id,
+                                userId: findUser._id,
                                 token: jwt.sign(
-                                    { userId: user._id },
-                                    'TOKEN_SECRET',
+                                    { userId: findUser._id },
+                                    process.env.TOKEN_SECRET,
                                     { expiresIn: '24h' }
                                 )
                             });
