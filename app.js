@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
+const path = require('path');
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauces');
 const express = require('express');
@@ -9,9 +10,9 @@ const mongoose = require('mongoose');
 const app = express();
 
 
-app.use(cors());
 
-app.use(express.json());
+
+
 /* app.use('/images', express.static(path.join(__dirname, 'images'))); */
 mongoose.connect(`mongodb+srv://${process.env.MONGODB_ID}:${process.env.MDP}@cluster0.xqjst5h.mongodb.net/?retryWrites=true&w=majority`,
   {
@@ -28,28 +29,15 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
- /* app.use('/api/auth/login', (req, res, next) => {
-  const login = [
-    {
-      email: { type: String, required: true, unique: true },
-      password: { type: String, required: true }
-      
-    },];
-
-  res.status(200).json(login);
- });  */
+app.use(cors());
+app.use(express.json());
+app.use('/images', express.static(path.join(__dirname, 'images'))); 
   
- app.use(cors());
+  app.use('/api/auth', userRoutes);
+  app.use('/api/sauces', sauceRoutes);
+  
+  module.exports = app;
 
-app.use('/api/auth', userRoutes);
-app.use('/api/sauces', sauceRoutes);
-/* const signup  = require("jsonwebtoken"); */
- 
- /* app.use('/api/sauces', saucesRoutes);
-  */
-
-
-module.exports = app;
 
 /* FICHIER DU 4 NOVEMBRE !! BON MAIS SERVER3000 NE MARCHE PAS
 require('dotenv').config();
@@ -86,4 +74,4 @@ app.use('/api/sauces', sauceRoute);
 app.use('/images', express.static(path.join(_dirname, 'images')));
 module.exports = app;
 
- */
+ //*/

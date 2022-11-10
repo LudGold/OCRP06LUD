@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 
 
-exports.signUp = (req, res, next) => {
+exports.signup = (req, res, next) => {
     //10 tours pour creer un mdp securisé, methode asynchrone
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
@@ -19,7 +19,7 @@ exports.signUp = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-exports.logIn = (req, res, next) => {
+exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })
         .then(findUser => {
             if (!findUser) {
@@ -30,7 +30,7 @@ exports.logIn = (req, res, next) => {
                     .then(valid => {
                         if (!valid) {
                             res.status(401).json({
-                                message: 'Paire identifiant/mot de passe incorrect'
+                                message: 'mot de passe incorrect'
                             })
                         } else {
                             res.status(200).json({
