@@ -1,16 +1,27 @@
 const User = require('../models/user');
+//import de bcrypt pour chiffrer le mot de passe
 const bcrypt = require("bcrypt");
-
+//import de crypto pour chiffrer le mail
+const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
-
+const dotenv = require("dotenv");
+dotenv.config();
+/* const passwordValidator = require('password-validator'); */
+/* const strongPassword = new passwordValidator */
 
 exports.signup = (req, res, next) => {
+
+    const emailCrypto = CryptoJS.HmacSHA256(req.body.email, process.env.EMAILCRYPTO).toString();
+
     //10 tours pour creer un mdp securisé, methode asynchrone
     bcrypt.hash(req.body.password, 10)
+
         .then(hash => {
+            console.log('emailCrypto', emailCrypto, 'hash', hash)
             const user = new User({
-                email: req.body.email,
-                password: hash
+
+                email: emailCrypto,
+                password: hash,
             });
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
@@ -20,13 +31,15 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-    User.findOne({ email: req.body.email })
+    const emailCrypto = CryptoJS.HmacSHA256(req.body.email, process.env.EMAILCRYPTO).toString();
+    User.findOne({ email: emailCrypto })
         .then(findUser => {
             if (!findUser) {
-                res.status(401).json({ message: 'Paire identifiant/mot de passe incorrect' });
+                res.status(401).json({ message: 'identifiant non reconnu' });
             }
             else {
                 bcrypt.compare(req.body.password, findUser.password)
+
                     .then(valid => {
                         if (!valid) {
                             res.status(401).json({

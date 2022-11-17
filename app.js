@@ -6,14 +6,10 @@ const sauceRoutes = require('./routes/sauces');
 const express = require('express');
 const cors = require('cors')
 const mongoose = require('mongoose');
-
+/*  empeche affichage de mes photos var helmet = require('helmet'); */
 const app = express();
 
 
-
-
-
-/* app.use('/images', express.static(path.join(__dirname, 'images'))); */
 mongoose.connect(`mongodb+srv://${process.env.MONGODB_ID}:${process.env.MDP}@cluster0.xqjst5h.mongodb.net/?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
@@ -22,7 +18,7 @@ mongoose.connect(`mongodb+srv://${process.env.MONGODB_ID}:${process.env.MDP}@clu
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
-  
+/* app.use(helmet()); */
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
@@ -31,12 +27,12 @@ app.use((req, res, next) => {
 });
 app.use(cors());
 app.use(express.json());
-app.use('/images', express.static(path.join(__dirname, 'images'))); 
-  
-  app.use('/api/auth', userRoutes);
-  app.use('/api/sauces', sauceRoutes);
-  
-  module.exports = app;
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+app.use('/api/auth', userRoutes);
+app.use('/api/sauces', sauceRoutes);
+
+module.exports = app;
 
 
 /* FICHIER DU 4 NOVEMBRE !! BON MAIS SERVER3000 NE MARCHE PAS
