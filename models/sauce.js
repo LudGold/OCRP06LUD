@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 // plugin de validation de contraintes uniques pour le shéma ci dessous
 const uniqueValidator = require('mongoose-unique-validator');
 
+
+
 const sauceSchema = mongoose.Schema({
     userId: { type: String, required: true },
     name: { type: String, required: true },

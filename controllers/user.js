@@ -6,8 +6,7 @@ const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv");
 dotenv.config();
-/* const passwordValidator = require('password-validator'); */
-/* const strongPassword = new passwordValidator */
+
 
 exports.signup = (req, res, next) => {
 
