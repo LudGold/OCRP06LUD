@@ -26,7 +26,7 @@ exports.createSauce = (req, res, next) => {
 exports.modifySauce = (req, res, next) => {
   //on supprime l'image précédente si nouvelle image uploadé
   if (req.file) {
-    //on vérifie si l'utilisateur est bien celui a qui créée la sauce
+    //on cherche la sauce correspondant parmi la liste de toutes les sauces
     Sauce.findOne({ _id: req.params.id })
       .then(sauce => {
         const filename = sauce.imageUrl.split('/images/')[1];
@@ -44,6 +44,7 @@ exports.modifySauce = (req, res, next) => {
   delete sauceObject._userId;
   /* delete imageUrl._userId;* faire en sorte que l'image d'avant soit retirée && fs.unlink(`images/${filename}`) */
   Sauce.findOne({ _id: req.params.id })
+
     .then((sauce) => {
       if (sauce.userId != req.auth.userId) {
         res.status(403).json({ message: 'Unauthorized request' });

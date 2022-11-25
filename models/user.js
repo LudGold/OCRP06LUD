@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
-//sécurité supplémentaire pour ne pas avoir 2 adresses e-mails identiques
+//sécurité supplémentaire pour ne pas avoir 2 utilisateurs avec le même e-mail
 const uniqueValidator = require('mongoose-unique-validator');
-const mongodbErrorHandler = require('mongoose-mongodb-errors')
+
+const MongooseErrors = require('mongoose-errors');
 
 const userSchema = new mongoose.Schema({
 
@@ -10,6 +11,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.plugin(uniqueValidator);
-userSchema.plugin(mongodbErrorHandler);
+userSchema.plugin(MongooseErrors);
+
 
 module.exports = mongoose.model('User', userSchema);

@@ -3,7 +3,9 @@ const User = require('../models/user');
 const bcrypt = require("bcrypt");
 //import de crypto pour chiffrer le mail
 const CryptoJS = require('crypto-js');
+//import du package de tokens d'authentification - clé de cryptage valable 12h
 const jwt = require('jsonwebtoken');
+// dot permet de gérer les variables d'environnement de manière sécurisée
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -16,7 +18,7 @@ exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10)
 
         .then(hash => {
-            console.log('emailCrypto', emailCrypto, 'hash', hash)
+            /* console.log('emailCrypto', emailCrypto, 'hash', hash) */
             const user = new User({
 
                 email: emailCrypto,
@@ -50,7 +52,7 @@ exports.login = (req, res, next) => {
                                 token: jwt.sign(
                                     { userId: findUser._id },
                                     process.env.TOKEN_SECRET,
-                                    { expiresIn: '24h' }
+                                    { expiresIn: '12h' }
                                 )
                             });
                         }
