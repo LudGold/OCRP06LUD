@@ -5,7 +5,7 @@ const sauceCtrl = require('../controllers/sauces');
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer');
 
-//routes disponibles dans notre application
+//routes disponibles de notre application :
 // Route pour l'affichage de toutes les sauces
 router.get('/', auth, sauceCtrl.getAllSauces);
 //Route pour la création d'une sauce

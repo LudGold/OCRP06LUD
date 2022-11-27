@@ -1,9 +1,9 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
 
-
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
+  // supprime le champ de la requete envoyée par le client - remplacé par le token d'authentification
   delete sauceObject._userId;
   delete sauceObject._id;
   const sauce = new Sauce({
@@ -24,47 +24,32 @@ exports.createSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-  //on supprime l'image précédente si nouvelle image uploadé
-  if (req.file) {
-    //on cherche la sauce correspondant parmi la liste de toutes les sauces
-    Sauce.findOne({ _id: req.params.id })
-      .then(sauce => {
-        const filename = sauce.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, (err) => {
-          if (err) throw err;
-        });
-      })
-  };
-  //on verifie si l'image a été modifiée
-  const sauceObject = req.file ? {
-    ...JSON.parse(req.body.sauce),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  } : { ...req.body };
-
-  delete sauceObject._userId;
-  /* delete imageUrl._userId;* faire en sorte que l'image d'avant soit retirée && fs.unlink(`images/${filename}`) */
   Sauce.findOne({ _id: req.params.id })
-
-    .then((sauce) => {
+    .then(sauce => {
+      //vérifie que c'est le même utilisateur qui a crée la sauce
       if (sauce.userId != req.auth.userId) {
-        res.status(403).json({ message: 'Unauthorized request' });
-      } else {
-
-        Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet modifié!' }))
-          .catch(error => res.status(401).json({ error }));
+        res.status(403).json({ message: 'Not authorized' });
       }
-    })
-    .catch((error) => {
-      res.status(400).json({ error });
+      else { next }
     });
-};
+  //Mise à jour ou non de l'image et du texte
+      const sauceModified = req.file ?
+        {
+      ...JSON.parse(req.body.sauce),
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    } : { ...req.body };
+     Sauce.updateOne({ _id: req.params.id }, { ...sauceModified, _id: req.params.id })
+      .then(() => res.status(200).json({ message: 'Objet modifié !' }))
+      .catch(error => res.status(400).json({ error }));
+  };
+
 
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then(sauce => {
+      //vérifie que c'est le même utilisateur qui a crée la sauce
       if (sauce.userId != req.auth.userId) {
-        res.status(401).json({ message: 'Not authorized' });
+        res.status(403).json({ message: 'Not authorized' });
       }
       else {
         const filename = sauce.imageUrl.split('/images/')[1];
@@ -97,9 +82,10 @@ exports.getOneSauce = (req, res, next) => {
 };
 exports.getAllSauces = (req, res, next) => {
   Sauce.find()
-    .then((sauce) => {
-      res.status(200).json(sauce);
-    })
+    .then(
+      (sauce) => {
+        res.status(200).json(sauce);
+      })
     .catch(
       (error) => {
         res.status(400).json({
@@ -112,8 +98,8 @@ exports.getAllSauces = (req, res, next) => {
 
 /* let likes = 1, aime la sauce
  like = 0 user annule son like
-like = -1 n'aime pas la sauce, */
-/*  (js) includes(), $inc - $push et $pull (mongoDb) */
+like = -1 n'aime pas la sauce, 
+(js) includes(), $inc - $push et $pull (mongoDb) */
 
 exports.likeSauce = function (request, response, next) {
   Sauce.findOne({ _id: request.params.id })
@@ -168,7 +154,7 @@ exports.likeSauce = function (request, response, next) {
                 response.status(400).json({ error: error });
               });
           }
-          //Annulation du dislike 
+          //Annulation du dislike par l'utilisateur
           if (sauce.usersDisliked.includes(request.body.userId)) {
             Sauce.updateOne(
               { _id: request.params.id },

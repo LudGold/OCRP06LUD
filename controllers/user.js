@@ -11,16 +11,12 @@ dotenv.config();
 
 
 exports.signup = (req, res, next) => {
-
+    //cypte l'email
     const emailCrypto = CryptoJS.HmacSHA256(req.body.email, process.env.EMAILCRYPTO).toString();
-
-    //10 tours pour creer un mdp securisé, methode asynchrone
+      //10 tours pour creer un mdp securisé, methode asynchrone
     bcrypt.hash(req.body.password, 10)
-
         .then(hash => {
-            /* console.log('emailCrypto', emailCrypto, 'hash', hash) */
-            const user = new User({
-
+               const user = new User({
                 email: emailCrypto,
                 password: hash,
             });
